@@ -1,0 +1,26 @@
+{
+  "name": "time-tracker",
+  "version": "1.0.0",
+  "description": "![N|PostgreSQL](https://miro.medium.com/max/2000/1*uPd_SkY4B9g9vvuCT_ndgg.png)",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/NikitaBabanin/Time-tracker.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/NikitaBabanin/Time-tracker/issues"
+  },
+  "homepage": "https://github.com/NikitaBabanin/Time-tracker#readme",
+  "dependencies": {
+    "express": "^4.17.2"
+  },
+  "devDependencies": {
+    "typescript": "^4.5.4"
+  }
+}
