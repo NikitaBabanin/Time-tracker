@@ -13,15 +13,15 @@ export class TimeController extends BaseController {
         ])
     }
 
-    addTime(req: Request, res: Response, next: NextFunction) {
+    addTime(req: Request, res: Response, next: NextFunction): void {
         this.ok(res, 'Add time.');
     }
 
-    getLog(req: Request, res: Response, next: NextFunction) {
+    getLog(req: Request, res: Response, next: NextFunction): void {
         this.ok(res, 'Get log.');
     }
 
-    getLogAll(req: Request, res: Response, next: NextFunction) {
+    getLogAll(req: Request, res: Response, next: NextFunction): void {
         this.ok(res, 'Get log all');
     }
 }
