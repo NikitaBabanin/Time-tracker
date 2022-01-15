@@ -1,26 +1,28 @@
 import express, {Express} from 'express';
 import {Server} from 'http';
-import {LoggerService} from './logger/logger.service';
+import {inject, injectable} from 'inversify';
+import {ILoggerService} from './logger/logger.service.interface'
 import {UserController} from './users/users.controller';
 import {TimeController} from './time/time.controller';
 import {ExeptionFilter} from './errors/exeption.filter';
+import {TYPES} from './types'
+import { IExeptionFilter } from './errors/exeption.filter.interface';
+import 'reflect-metadata'
 
+@injectable()
 export class App {
     app: Express;
     port: number;
     server: Server;
-    logger: LoggerService;
-    userController: UserController;
-    timeController: TimeController;
-    exeptionFilter: ExeptionFilter;
 
-    constructor(logger: LoggerService, userController: UserController, timeController: TimeController, exeptionFilter: ExeptionFilter) {
+    constructor(
+        @inject(TYPES.ILoggerService) private logger: ILoggerService,
+        @inject(TYPES.UserController) private userController: UserController,
+        @inject(TYPES.TimeController) private timeController: TimeController,
+        @inject(TYPES.ExeptionFilter) private exeptionFilter: IExeptionFilter
+    ) {
         this.app = express();
-        this.port = 8003;
-        this.logger = logger;
-        this.userController = userController;
-        this.timeController = timeController;
-        this.exeptionFilter = exeptionFilter;
+        this.port = 8004;
     }
 
     useRoutes(): void {
