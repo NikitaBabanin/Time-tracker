@@ -1,7 +1,8 @@
-import { Response, Router } from 'express';
-import { LoggerService } from '../logger/logger.service';
-import { IControllerRoute } from './route.interface';
-export { Router } from 'express';
+import {Response, Router} from 'express';
+import {LoggerService} from '../logger/logger.service';
+import {IControllerRoute} from './route.interface';
+
+export {Router} from 'express';
 
 export abstract class BaseController {
     private readonly _router: Router;
@@ -15,7 +16,7 @@ export abstract class BaseController {
     }
 
     public send<T>(res: Response, code: number, message: T) {
-        res.type('application/json')
+        res.type('application/json');
         return res.status(code).json(message);
     }
 

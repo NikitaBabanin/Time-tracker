@@ -3,7 +3,7 @@ import {Logger} from 'tslog';
 export class LoggerService {
     public logger: Logger;
 
-    constructor(){
+    constructor() {
         this.logger = new Logger({
             displayInstanceName: false,
             displayLoggerName: false,
@@ -12,15 +12,15 @@ export class LoggerService {
         });
     }
 
-    log(...args: unknown[]){
+    log(...args: unknown[]) {
         this.logger.info(...args);
     }
 
-    error(...args: unknown[]){
+    error(...args: unknown[]) {
         this.logger.error(...args);
     }
 
-    warn(...args: unknown[]){
+    warn(...args: unknown[]) {
         this.logger.warn(...args);
     }
 }
