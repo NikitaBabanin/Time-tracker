@@ -1,8 +1,9 @@
 import {Request, Response, NextFunction} from 'express';
 import {LoggerService} from '../logger/logger.service';
 import {BaseController} from '../common/base.controller';
+import {ITimeController} from './time.controller.interface';
 
-export class TimeController extends BaseController {
+export class TimeController extends BaseController implements ITimeController{
 
     constructor(logger: LoggerService) {
         super(logger)
