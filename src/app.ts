@@ -22,10 +22,11 @@ export class App {
         @inject(TYPES.ExeptionFilter) private exeptionFilter: IExeptionFilter
     ) {
         this.app = express();
-        this.port = 8004;
+        this.port = 8002;
     }
 
     useRoutes(): void {
+        this.app.use(express.json());
         this.app.use('/users', this.userController.router);
         this.app.use('/time', this.timeController.router);
     }
