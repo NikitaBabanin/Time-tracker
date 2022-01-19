@@ -9,6 +9,7 @@ import db from '../db';
 import 'reflect-metadata';
 import { UserLoginDto } from './dto/user-login.dto';
 import { UserRegisterDto } from './dto/user-register.dto';
+import { User } from './user.entity';
 
 @injectable()
 export class UserController extends BaseController implements IUsersController {
@@ -24,10 +25,13 @@ export class UserController extends BaseController implements IUsersController {
         this.ok(res, 'Login');
     }
 
-    async register(req: Request<{},{},UserRegisterDto>, res: Response, next: NextFunction): Promise<void> {
-        console.log(req.body)
-        const {username, password} = req.body;
-        const newPerson = await db.query('INSERT INTO person (username, password) values ($1, $2) RETURNING *',[username, password])
+    async register({body}: Request<{},{},UserRegisterDto>, res: Response, next: NextFunction): Promise<void> {
+        const {username, password} = body;
+
+        const newUser = new User(username);
+        await newUser.setPassword(password);
+
+        const newPerson = await db.query('INSERT INTO person (username, password) values ($1, $2) RETURNING *',[newUser.username, newUser.password])
         this.ok(res, {message:"Register", data:newPerson.rows[0]});
     }
 }

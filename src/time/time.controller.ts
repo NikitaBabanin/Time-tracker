@@ -53,9 +53,9 @@ export class TimeController extends BaseController implements ITimeController {
         return await db.query("SELECT * from time where user_id = $1", [user_id]);
     }
 
-    async addTime(req: Request<{},{},AddTimeDto>, res: Response, next: NextFunction): Promise<void> {
+    async addTime({body}: Request<{},{},AddTimeDto>, res: Response, next: NextFunction): Promise<void> {
 
-        const {username, date, hours, description} = req.body;
+        const {username, date, hours, description} = body;
 
         const getUser = await this.getUserByName(username);
 
@@ -92,12 +92,12 @@ export class TimeController extends BaseController implements ITimeController {
         this.ok(res, {message: 'Add time.', data: allUserTime.rows});
     }
 
-    async getTime(req: Request<{},{},GetTimeDto>, res: Response, next: NextFunction): Promise<void> {
+    async getTime({query,body}: Request<{},{},GetTimeDto>, res: Response, next: NextFunction): Promise<void> {
 
-        const startdate: string = req.query.startdate as string
-        const enddate: string = req.query.enddate as string;
+        const startdate: string = query.startdate as string
+        const enddate: string = query.enddate as string;
 
-        const {username} = req.body;
+        const {username} = body;
 
         const getUser = await this.getUserByName(username);
 
@@ -128,9 +128,9 @@ export class TimeController extends BaseController implements ITimeController {
         });
     }
 
-    async getTimeAll(req: Request, res: Response, next: NextFunction): Promise<void> {
-        const startdate: string = req.query.startdate as string;
-        const enddate: string = req.query.enddate as string;
+    async getTimeAll({query}: Request, res: Response, next: NextFunction): Promise<void> {
+        const startdate: string = query.startdate as string;
+        const enddate: string = query.enddate as string;
 
         const getTimeAll = await db.query(
             "SELECT user_id,SUM(hours),string_agg(description,'/') description from time where date >= $1 and date <= $2 group by user_id",

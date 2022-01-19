@@ -22,7 +22,7 @@ export class App {
         @inject(TYPES.ExeptionFilter) private exeptionFilter: IExeptionFilter
     ) {
         this.app = express();
-        this.port = 3005;
+        this.port = 3007;
     }
 
     useMiddleware():void{
