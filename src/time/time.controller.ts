@@ -7,6 +7,8 @@ import {BaseController} from '../common/base.controller';
 import {ITimeController} from './time.controller.interface';
 import db from '../db';
 import 'reflect-metadata'
+import { AddTimeDto } from './dto/add-time.dto';
+import { GetTimeDto } from './dto/get-time.dto';
 
 @injectable()
 export class TimeController extends BaseController implements ITimeController {
@@ -51,13 +53,9 @@ export class TimeController extends BaseController implements ITimeController {
         return await db.query("SELECT * from time where user_id = $1", [user_id]);
     }
 
-    async addTime(req: Request, res: Response, next: NextFunction): Promise<void> {
+    async addTime(req: Request<{},{},AddTimeDto>, res: Response, next: NextFunction): Promise<void> {
 
-        const username: string = req.body.username;
-        const date: string = req.body.date;
-        const hours: number = req.body.hours;
-        const description: string = req.body.description;
-
+        const {username, date, hours, description} = req.body;
 
         const getUser = await this.getUserByName(username);
 
@@ -94,10 +92,12 @@ export class TimeController extends BaseController implements ITimeController {
         this.ok(res, {message: 'Add time.', data: allUserTime.rows});
     }
 
-    async getTime(req: Request, res: Response, next: NextFunction): Promise<void> {
-        const username: string = req.params.username;
+    async getTime(req: Request<{},{},GetTimeDto>, res: Response, next: NextFunction): Promise<void> {
+
         const startdate: string = req.query.startdate as string
         const enddate: string = req.query.enddate as string;
+
+        const {username} = req.body;
 
         const getUser = await this.getUserByName(username);
 
