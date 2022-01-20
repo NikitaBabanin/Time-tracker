@@ -12,6 +12,7 @@ import {GetTimeDto} from './dto/get-time.dto';
 import {ITimeService} from './time.service.interface';
 import {GetTimeAllDto} from './dto/get-time-all.dto';
 import {HTTPError} from '../errors/http-error.class';
+import { ValidateMiddleware } from '../common/validate.middleware';
 
 @injectable()
 export class TimeController extends BaseController implements ITimeController {
@@ -22,9 +23,9 @@ export class TimeController extends BaseController implements ITimeController {
     ) {
         super(loggerService)
         this.bindRoutes([
-            {path: '/add-time', method: 'post', func: this.addTime},
-            {path: '/get-time/:username', method: 'get', func: this.getTime},
-            {path: '/get-time-all', method: 'get', func: this.getTimeAll},
+            {path: '/add-time', method: 'post', func: this.addTime,middlewares: [new ValidateMiddleware(AddTimeDto)]},
+            {path: '/get-time/:username', method: 'get', func: this.getTime,middlewares: [new ValidateMiddleware(GetTimeDto)]},
+            {path: '/get-time-all', method: 'get', func: this.getTimeAll,middlewares: [new ValidateMiddleware(GetTimeAllDto)]},
         ])
     }
 
