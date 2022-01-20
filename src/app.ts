@@ -1,4 +1,5 @@
 import express, {Express} from 'express';
+import {json, urlencoded} from 'body-parser';
 import {Server} from 'http';
 import {inject, injectable} from 'inversify';
 import {ILoggerService} from './logger/logger.service.interface'
@@ -6,7 +7,9 @@ import {UserController} from './users/users.controller';
 import {TimeController} from './time/time.controller';
 import {ExeptionFilter} from './errors/exeption.filter';
 import {TYPES} from './types'
-import { IExeptionFilter } from './errors/exeption.filter.interface';
+import {IExeptionFilter} from './errors/exeption.filter.interface';
+import {ITimeService} from './time/time.service.interface';
+import {IUserService} from './users/users.service.interface';
 import 'reflect-metadata'
 import { IConfigService } from './config/config.service.interface';
 import {IUsersController} from './users/users.controller.interface'
@@ -22,14 +25,21 @@ export class App {
         @inject(TYPES.UserController) private userController: UserController,
         @inject(TYPES.TimeController) private timeController: TimeController,
         @inject(TYPES.ExeptionFilter) private exeptionFilter: IExeptionFilter,
-        @inject(TYPES.ConfigService) private configService: IConfigService
+        @inject(TYPES.ConfigService) private configService: IConfigService,
+        @inject(TYPES.TimeService) private timeService: ITimeService,
+        @inject(TYPES.UserService) private userService: IUserService
+
     ) {
         this.app = express();
-        this.port = 8002;
+        this.port = 3000;
+    }
+
+    useMiddleware(): void {
+        this.app.use(urlencoded({ extended: false }))
+        this.app.use(json());
     }
 
     useRoutes(): void {
-        this.app.use(express.json());
         this.app.use('/users', this.userController.router);
         this.app.use('/time', this.timeController.router);
     }
@@ -39,7 +49,9 @@ export class App {
     }
 
     public async init(): Promise<void> {
-        this.useRoutes()
+        this.useMiddleware();
+        this.useRoutes();
+        this.useExeptionFilters();
         this.server = this.app.listen(this.port);
         this.logger.log(`Server is running on port ${this.port} `)
     }
