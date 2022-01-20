@@ -16,6 +16,10 @@ import { ConfigService } from './config/config.service';
 import { IConfigService } from './config/config.service.interface';
 import { ITimeService } from './time/time.service.interface';
 import { TimeService } from './time/time.service';
+import { IUsersRepository } from './users/users.repository.interface';
+import { UsersRepository } from './users/users.repository';
+import { ITimeRepository } from './time/time.repository.interface';
+import { TimeRepository } from './time/time.repository';
 
 
 export interface IBootstrapReturn {
@@ -32,6 +36,8 @@ export const appBindings = new ContainerModule((bind: interfaces.Bind) =>{
     bind<ITimeService>(TYPES.TimeService).to(TimeService).inSingletonScope();
     bind<IExeptionFilter>(TYPES.ExeptionFilter).to(ExeptionFilter).inSingletonScope();
     bind<IConfigService>(TYPES.ConfigService).to(ConfigService).inSingletonScope();
+    bind<IUsersRepository>(TYPES.UserRepository).to(UsersRepository).inSingletonScope();
+    bind<ITimeRepository>(TYPES.TimeRepository).to(TimeRepository).inSingletonScope();
     bind<App>(TYPES.Application).to(App).inSingletonScope();
 });
 
@@ -45,3 +51,5 @@ function bootstrap(): IBootstrapReturn {
 }
 
 export const { appContainer, app} = bootstrap();
+
+

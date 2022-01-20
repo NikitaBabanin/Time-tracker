@@ -7,43 +7,51 @@ import db from '../db';
 import {GetTimeDto} from "./dto/get-time.dto";
 import {GetTimeAllDto} from "./dto/get-time-all.dto";
 import 'reflect-metadata'
+import {IUsersRepository} from "../users/users.repository.interface";
+import {ITimeRepository} from "./time.repository.interface";
 
 @injectable()
 export class TimeService implements ITimeService {
 
-    constructor(@inject(TYPES.ILoggerService) private loggerService: ILoggerService) {
+    constructor(
+        @inject(TYPES.ILoggerService) private loggerService: ILoggerService,
+        @inject(TYPES.UserRepository) private userRepository: IUsersRepository,
+        @inject(TYPES.TimeRepository) private timeReporitory: ITimeRepository
+    ) {
     }
 
     private async getUserByName(username: string) {
-        return await db.query("SELECT * FROM person where username = $1", [
-            username,
-        ]);
+        return await this.userRepository.getUserByName(username);
     }
 
     private async getUsernameById(user_id: number) {
-        const username = await db.query("SELECT username FROM person WHERE id=$1", [
-            user_id,
-        ]);
+        const username = await this.userRepository.getUserById(user_id);
         const result = username.rows[0].username;
         return result;
     }
 
-    private async allTimeBySelectedDate(user_id: number, date: string) {
-        const time = await db.query(
-            "SELECT SUM(hours) FROM time WHERE user_id=$1 and date=$2",
-            [user_id, date]
-        );
+    private async allTimeBySelectedDate(user_id: number, date: string): Promise<number> {
+        const time = await this.timeReporitory.allTimeBySelectedDate(user_id, date);
 
-        const result = parseInt(time.rows[0].sum);
+        const result = Number(time.rows[0].sum);
 
         if (!result) return 0;
 
         return result;
     }
 
-    private async getAllUserTime(user_id: number) {
-        return await db.query("SELECT * from time where user_id = $1", [user_id]);
+    private async getTimeMapData(time: any) {
+        return await time.rows.map((item: any) => {
+            const {date, sum, description} = item;
+            return {
+                date,
+                hours: +sum,
+                description,
+            };
+        });
+
     }
+
 
     async addTime({username, date, hours, description}: AddTimeDto): Promise<any[]> {
         const getUser = await this.getUserByName(username);
@@ -65,12 +73,9 @@ export class TimeService implements ITimeService {
             throw new Error("You are trying to add more than 8 hours per number.");
         }
 
-        await db.query(
-            "INSERT INTO time (date, hours,description, user_id) values ($1, $2, $3, $4) RETURNING *",
-            [date, hours, description, user_id]
-        );
+        await this.timeReporitory.saveTime({user_id, date, hours, description});
 
-        const allUserTime = await this.getAllUserTime(user_id);
+        const allUserTime = await this.timeReporitory.getAllUserTime(user_id);
 
         return allUserTime.rows
 
@@ -80,30 +85,19 @@ export class TimeService implements ITimeService {
                       username,
                       startdate,
                       enddate
-                  }: GetTimeDto): Promise< {date: any, hours: number, description: any}[]> {
+                  }: GetTimeDto): Promise<{ date: string, hours: number, description: string }[]> {
 
         const getUser = await this.getUserByName(username);
-        console.log('getuser : ', username, startdate, enddate)
+
         if (!getUser.rows[0]) {
             throw new Error("An error has occurred try again");
         }
 
         const user_id = getUser.rows[0].id;
 
-        const getTime = await db.query(
-            "SELECT date,sum(hours),string_agg(description,'/') description from time where user_id = $1 and date >= $2 and date <= $3 group by date",
-            [user_id, startdate, enddate]
-        );
+        const getTime = await this.timeReporitory.getTime({user_id, startdate, enddate});
 
-        const updateDateStructur = getTime.rows.map((item) => {
-            const {date, sum, description} = item;
-            return {
-                date,
-                hours: +sum,
-                description,
-            };
-        });
-
+        const updateDateStructur = this.getTimeMapData(getTime)
         return updateDateStructur
 
     }
@@ -111,15 +105,12 @@ export class TimeService implements ITimeService {
     async getTimeAll({
                          startdate,
                          enddate
-                     }: GetTimeAllDto): Promise< {username: string, hours: number, description: string}[]> {
+                     }: GetTimeAllDto): Promise<any | null> {
 
-        const getTimeAll = await db.query(
-            "SELECT user_id,SUM(hours),string_agg(description,'/') description from time where date >= $1 and date <= $2 group by user_id",
-            [startdate, enddate]
-        );
+        const getTimeAll:any  = await this.timeReporitory.getTimeAll({startdate,enddate})
 
         return await Promise.all(
-            getTimeAll.rows.map((item) => {
+            getTimeAll.rows.map((item:any) => {
                 const {user_id, sum, description} = item;
 
                 return this.getUsernameById(user_id).then((username) => {
@@ -130,7 +121,7 @@ export class TimeService implements ITimeService {
                     };
                 });
             })
-        ).then((allTime) => {
+        ).then((allTime:any) => {
             return allTime
         });
     }

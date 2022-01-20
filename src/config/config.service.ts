@@ -3,6 +3,7 @@ import {config, DotenvConfigOutput, DotenvParseOutput} from 'dotenv'
 import { ILoggerService } from "../logger/logger.service.interface";
 import { TYPES } from "../types";
 import { inject, injectable } from "inversify";
+import 'reflect-metadata';
 
 @injectable()
 export class ConfigService implements IConfigService {
@@ -19,7 +20,7 @@ export class ConfigService implements IConfigService {
         }
     }
 
-    get<T extends string | number>(key: string): T {
-        return this.config[key] as T;
+    get(key: string): string {
+        return this.config[key];
     }
 }

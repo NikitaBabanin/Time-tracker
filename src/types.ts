@@ -6,5 +6,7 @@ export const TYPES = {
     ExeptionFilter: Symbol.for('ExeptionFilter'),
     TimeController: Symbol.for('TimeController'),
     ConfigService: Symbol.for('ConfigService'),
-    TimeService: Symbol.for('TimeService')
+    TimeService: Symbol.for('TimeService'),
+    UserRepository: Symbol.for('UserRepository'),
+    TimeRepository: Symbol.for('TimeRepository')
 };

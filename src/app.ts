@@ -27,7 +27,6 @@ export class App {
         @inject(TYPES.ExeptionFilter) private exeptionFilter: IExeptionFilter,
         @inject(TYPES.ConfigService) private configService: IConfigService,
         @inject(TYPES.TimeService) private timeService: ITimeService,
-        @inject(TYPES.UserService) private userService: IUserService
 
     ) {
         this.app = express();
