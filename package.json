@@ -22,6 +22,7 @@
   "homepage": "https://github.com/NikitaBabanin/Time-tracker#readme",
   "dependencies": {
     "bcryptjs": "^2.4.3",
+    "body-parser": "^1.19.1",
     "express": "^4.17.2",
     "inversify": "^6.0.1",
     "pg": "^8.7.1",
