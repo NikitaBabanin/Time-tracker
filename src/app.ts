@@ -8,6 +8,8 @@ import {ExeptionFilter} from './errors/exeption.filter';
 import {TYPES} from './types'
 import { IExeptionFilter } from './errors/exeption.filter.interface';
 import 'reflect-metadata'
+import { IConfigService } from './config/config.service.interface';
+import {IUsersController} from './users/users.controller.interface'
 
 @injectable()
 export class App {
@@ -19,7 +21,8 @@ export class App {
         @inject(TYPES.ILoggerService) private logger: ILoggerService,
         @inject(TYPES.UserController) private userController: UserController,
         @inject(TYPES.TimeController) private timeController: TimeController,
-        @inject(TYPES.ExeptionFilter) private exeptionFilter: IExeptionFilter
+        @inject(TYPES.ExeptionFilter) private exeptionFilter: IExeptionFilter,
+        @inject(TYPES.ConfigService) private configService: IConfigService
     ) {
         this.app = express();
         this.port = 8002;
