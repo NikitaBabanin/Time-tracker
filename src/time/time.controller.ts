@@ -7,16 +7,25 @@ import {BaseController} from '../common/base.controller';
 import {ITimeController} from './time.controller.interface';
 import db from '../db';
 import 'reflect-metadata'
+import {AddTimeDto} from './dto/add-time.dto';
+import {GetTimeDto} from './dto/get-time.dto';
+import {ITimeService} from './time.service.interface';
+import {GetTimeAllDto} from './dto/get-time-all.dto';
+import {HTTPError} from '../errors/http-error.class';
+import { ValidateMiddleware } from '../common/validate.middleware';
 
 @injectable()
 export class TimeController extends BaseController implements ITimeController {
 
-    constructor(@inject(TYPES.ILoggerService) private loggerService: ILoggerService) {
+    constructor(
+        @inject(TYPES.ILoggerService) private loggerService: ILoggerService,
+        @inject(TYPES.TimeService) private timeService: ITimeService,
+    ) {
         super(loggerService)
         this.bindRoutes([
-            {path: '/add-time', method: 'post', func: this.addTime},
-            {path: '/get-time/:username', method: 'get', func: this.getTime},
-            {path: '/get-time-all', method: 'get', func: this.getTimeAll},
+            {path: '/add-time', method: 'post', func: this.addTime,middlewares: [new ValidateMiddleware(AddTimeDto)]},
+            {path: '/get-time/:username', method: 'get', func: this.getTime,middlewares: [new ValidateMiddleware(GetTimeDto)]},
+            {path: '/get-time-all', method: 'get', func: this.getTimeAll,middlewares: [new ValidateMiddleware(GetTimeAllDto)]},
         ])
     }
 
@@ -51,107 +60,57 @@ export class TimeController extends BaseController implements ITimeController {
         return await db.query("SELECT * from time where user_id = $1", [user_id]);
     }
 
-    async addTime(req: Request, res: Response, next: NextFunction): Promise<void> {
+    async addTime({body}: Request<{}, {}, AddTimeDto>, res: Response, next: NextFunction): Promise<void> {
 
-        const username: string = req.body.username;
-        const date: string = req.body.date;
-        const hours: number = req.body.hours;
-        const description: string = req.body.description;
+        await this.timeService.addTime(body)
+            .then((result) => {
+                if (!result) return new Error('Error');
+                this.ok(res, {message: 'Add time.', data: result});
+            })
+            .catch((error) => {
+                next(new HTTPError(404, error.message, 'addTime'));
+            })
 
-
-        const getUser = await this.getUserByName(username);
-
-        if (!getUser.rows[0]) {
-            this.ok(res, {message: "This user is not in database.", data: {}});
-            return;
-        }
-
-        const user_id = getUser.rows[0].id;
-
-        const allTimeBySelectedDate = await this.allTimeBySelectedDate(
-            user_id,
-            date
-        );
-
-        const addedNewTime = allTimeBySelectedDate + hours;
-
-        if (addedNewTime > 8) {
-            this.ok(res, {
-                message: "Error",
-                date: "You are trying to add more than 8 hours per number.",
-            });
-
-            return;
-        }
-
-        await db.query(
-            "INSERT INTO time (date, hours,description, user_id) values ($1, $2, $3, $4) RETURNING *",
-            [date, hours, description, user_id]
-        );
-
-        const allUserTime = await this.getAllUserTime(user_id);
-
-        this.ok(res, {message: 'Add time.', data: allUserTime.rows});
     }
 
     async getTime(req: Request, res: Response, next: NextFunction): Promise<void> {
-        const username: string = req.params.username;
-        const startdate: string = req.query.startdate as string
-        const enddate: string = req.query.enddate as string;
-
-        const getUser = await this.getUserByName(username);
-
-        if (!getUser.rows[0]) {
-            this.ok(res, {message: "This user is not in database.", data: {}});
-            return;
+        const payload = {
+            startdate: req.query.startdate as string,
+            enddate: req.query.enddate as string,
+            username: req.params.username as string
         }
 
-        const user_id = getUser.rows[0].id;
 
-        const getTime = await db.query(
-            "SELECT date,sum(hours),string_agg(description,'/') description from time where user_id = $1 and date >= $2 and date <= $3 group by date",
-            [user_id, startdate, enddate]
-        );
-
-        const updateDateStructur = getTime.rows.map((item) => {
-            const {date, sum, description} = item;
-            return {
-                date,
-                hours: +sum,
-                description,
-            };
-        });
-
-        this.ok(res, {
-            message: `Time between ${startdate} and ${enddate}`,
-            data: updateDateStructur,
-        });
-    }
-
-    async getTimeAll(req: Request, res: Response, next: NextFunction): Promise<void> {
-        const startdate: string = req.query.startdate as string;
-        const enddate: string = req.query.enddate as string;
-
-        const getTimeAll = await db.query(
-            "SELECT user_id,SUM(hours),string_agg(description,'/') description from time where date >= $1 and date <= $2 group by user_id",
-            [startdate, enddate]
-        );
-
-        Promise.all(
-            getTimeAll.rows.map((item) => {
-                const {user_id, sum, description} = item;
-
-                return this.getUsernameById(user_id).then((username) => {
-                    return {
-                        username,
-                        hours: +sum,
-                        description,
-                    };
+        await this.timeService.getTime(payload)
+            .then((result) => {
+                if (!result) return new Error('Error');
+                this.ok(res, {
+                    message: `Time between ${payload.startdate} and ${payload.enddate}`,
+                    data: result,
                 });
             })
-        ).then((allTime) => {
-            this.ok(res, {message: "All time", date: allTime});
-        });
+            .catch((error) => {
+                next(new HTTPError(404, error.message, 'getTime'));
+            })
+
+    }
+
+    async getTimeAll({query}: Request<{}, {}, GetTimeAllDto>, res: Response, next: NextFunction): Promise<void> {
+
+        const payload = {
+            startdate: query.startdate as string,
+            enddate: query.enddate as string
+        }
+
+        await this.timeService.getTimeAll(payload)
+            .then((result) => {
+                console.log('result : ', result);
+                if (!result) return new Error('Error');
+                this.ok(res, {message: "All time", date: result});
+            })
+            .catch((error) => {
+                next(new HTTPError(404, error.message, 'getTimeAll'));
+            })
     }
 }
 
