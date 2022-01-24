@@ -5,7 +5,7 @@ const pool = new Pool({
     password: "root",
     host: "localhost",
     port: 5432,
-    database: "time-tracker-production",
+    database: "time-tracker-prod",
 });
 
 export default pool

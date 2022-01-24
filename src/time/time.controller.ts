@@ -29,38 +29,7 @@ export class TimeController extends BaseController implements ITimeController {
         ])
     }
 
-    private async getUserByName(username: string) {
-        return await db.query("SELECT * FROM person where username = $1", [
-            username,
-        ]);
-    }
-
-    private async getUsernameById(user_id: number) {
-        const username = await db.query("SELECT username FROM person WHERE id=$1", [
-            user_id,
-        ]);
-        const result = username.rows[0].username;
-        return result;
-    }
-
-    private async allTimeBySelectedDate(user_id: number, date: string) {
-        const time = await db.query(
-            "SELECT SUM(hours) FROM time WHERE user_id=$1 and date=$2",
-            [user_id, date]
-        );
-
-        const result = parseInt(time.rows[0].sum);
-
-        if (!result) return 0;
-
-        return result;
-    }
-
-    private async getAllUserTime(user_id: number) {
-        return await db.query("SELECT * from time where user_id = $1", [user_id]);
-    }
-
-    async addTime({body}: Request<{}, {}, AddTimeDto>, res: Response, next: NextFunction): Promise<void> {
+    async addTime({body}: Request<{}, {}, AddTimeDto>, res: Response, next: NextFunction): Promise<void | null> {
 
         await this.timeService.addTime(body)
             .then((result) => {
@@ -73,7 +42,7 @@ export class TimeController extends BaseController implements ITimeController {
 
     }
 
-    async getTime(req: Request, res: Response, next: NextFunction): Promise<void> {
+    async getTime(req: Request, res: Response, next: NextFunction): Promise<void | null> {
         const payload = {
             startdate: req.query.startdate as string,
             enddate: req.query.enddate as string,
@@ -95,7 +64,7 @@ export class TimeController extends BaseController implements ITimeController {
 
     }
 
-    async getTimeAll({query}: Request<{}, {}, GetTimeAllDto>, res: Response, next: NextFunction): Promise<void> {
+    async getTimeAll({query}: Request<{}, {}, GetTimeAllDto>, res: Response, next: NextFunction): Promise<void | null> {
 
         const payload = {
             startdate: query.startdate as string,

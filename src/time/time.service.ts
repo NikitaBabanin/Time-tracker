@@ -2,7 +2,7 @@ import {inject, injectable} from "inversify";
 import {ILoggerService} from "../logger/logger.service.interface";
 import {TYPES} from "../types";
 import {AddTimeDto} from "./dto/add-time.dto";
-import {ITimeService, IOperationWithTime} from "./time.service.interface";
+import {ITimeService, IOperationWithTime, IGetTime, IGetTimeAll, IAddTime} from "./time.service.interface";
 import db from '../db';
 import {GetTimeDto} from "./dto/get-time.dto";
 import {GetTimeAllDto} from "./dto/get-time-all.dto";
@@ -16,7 +16,7 @@ export class TimeService implements ITimeService {
     constructor(
         @inject(TYPES.ILoggerService) private loggerService: ILoggerService,
         @inject(TYPES.UserRepository) private userRepository: IUsersRepository,
-        @inject(TYPES.TimeRepository) private timeReporitory: ITimeRepository
+        @inject(TYPES.TimeRepository) private timeRepository: ITimeRepository
     ) {
     }
 
@@ -26,14 +26,14 @@ export class TimeService implements ITimeService {
 
     private async getUsernameById(user_id: number) {
         const username = await this.userRepository.getUserById(user_id);
-        const result = username.rows[0].username;
+        const result = username?.rows[0].username;
         return result;
     }
 
     private async allTimeBySelectedDate(user_id: number, date: string): Promise<number> {
-        const time = await this.timeReporitory.allTimeBySelectedDate(user_id, date);
+        const time = await this.timeRepository.allTimeBySelectedDate(user_id, date);
 
-        const result = Number(time.rows[0].sum);
+        const result = Number(time?.rows[0].sum);
 
         if (!result) return 0;
 
@@ -53,10 +53,10 @@ export class TimeService implements ITimeService {
     }
 
 
-    async addTime({username, date, hours, description}: AddTimeDto): Promise<any[]> {
+    async addTime({username, date, hours, description}: AddTimeDto): Promise<IAddTime[] | []> {
         const getUser = await this.getUserByName(username);
 
-        if (!getUser.rows[0]) {
+        if (!getUser?.rows[0]) {
             throw new Error("This user is not in database.");
         }
 
@@ -73,11 +73,15 @@ export class TimeService implements ITimeService {
             throw new Error("You are trying to add more than 8 hours per number.");
         }
 
-        await this.timeReporitory.saveTime({user_id, date, hours, description});
+        await this.timeRepository.saveTime({user_id, date, hours, description});
 
-        const allUserTime = await this.timeReporitory.getAllUserTime(user_id);
+        const allUserTime = await this.timeRepository.getAllUserTime(user_id);
 
-        return allUserTime.rows
+        if(!allUserTime?.rows){
+            throw new Error("")
+        }
+
+        return allUserTime.rows as []
 
     }
 
@@ -85,17 +89,17 @@ export class TimeService implements ITimeService {
                       username,
                       startdate,
                       enddate
-                  }: GetTimeDto): Promise<{ date: string, hours: number, description: string }[]> {
+                  }: GetTimeDto): Promise<IGetTime[]> {
 
         const getUser = await this.getUserByName(username);
 
-        if (!getUser.rows[0]) {
+        if (!getUser?.rows[0]) {
             throw new Error("An error has occurred try again");
         }
 
         const user_id = getUser.rows[0].id;
 
-        const getTime = await this.timeReporitory.getTime({user_id, startdate, enddate});
+        const getTime = await this.timeRepository.getTime({user_id, startdate, enddate});
 
         const updateDateStructur = this.getTimeMapData(getTime)
         return updateDateStructur
@@ -105,9 +109,9 @@ export class TimeService implements ITimeService {
     async getTimeAll({
                          startdate,
                          enddate
-                     }: GetTimeAllDto): Promise<any | null> {
+                     }: GetTimeAllDto): Promise<IGetTimeAll[] | null> {
 
-        const getTimeAll:any  = await this.timeReporitory.getTimeAll({startdate,enddate})
+        const getTimeAll:any  = await this.timeRepository.getTimeAll({startdate,enddate})
 
         return await Promise.all(
             getTimeAll.rows.map((item:any) => {
