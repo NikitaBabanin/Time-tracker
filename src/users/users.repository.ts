@@ -2,12 +2,13 @@ import { injectable } from "inversify";
 import db from "../database/db";
 import {IUserRepositoryReqDb, IUsersRepository} from "./users.repository.interface";
 import 'reflect-metadata'
+import { User } from "./user.entity";
 
 @injectable()
 export class UsersRepository implements IUsersRepository {
 
-    async create(email: string, username: string, password: string,): Promise<IUserRepositoryReqDb> {
-        return await db.query('INSERT INTO person (email, username, password) values ($1, $2, $3) RETURNING *', [email, username, password])
+    async create(user:User): Promise<IUserRepositoryReqDb> {
+        return await db.query('INSERT INTO person (email, username, password) values ($1, $2, $3) RETURNING *', [user.email, user.username, user.password])
     }
 
     async find(email:string): Promise<IUserRepositoryReqDb | null> {

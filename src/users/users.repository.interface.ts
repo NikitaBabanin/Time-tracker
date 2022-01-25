@@ -1,7 +1,7 @@
 import { User } from "./user.entity";
 
 export interface IUsersRepository{
-    create:(email:string, usernaem:string,password:string) => Promise<IUserRepositoryReqDb>;
+    create:(user:User) => Promise<IUserRepositoryReqDb>;
     find:(email: string) => Promise<IUserRepositoryReqDb | null>;
     getUserById: (user_id:number) => Promise<IUserRepositoryReqDb | null>;
     getUserByName: (username: string) => Promise<IUserRepositoryReqDb | null>;

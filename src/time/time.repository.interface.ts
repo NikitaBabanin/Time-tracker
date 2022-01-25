@@ -3,11 +3,11 @@ import { GetTimeAllDto } from "./dto/get-time-all.dto";
 import { GetTimeDto } from "./dto/get-time.dto";
 
 export interface ITimeRepository{
-    saveTime: (dto: ISaveTime) => Promise<IUserRepositoryReqDb | null>
-    getTime: (dto: IGetTime) => Promise<IUserRepositoryReqDb | null>
-    getTimeAll: (dto: GetTimeAllDto) => Promise<IUserRepositoryReqDb | null>
-    allTimeBySelectedDate:(user_id:number, date:string) => Promise<IUserRepositoryReqDb | null>
-    getAllUserTime: (user_id:number) => Promise<IUserRepositoryReqDb | null>
+    saveTime: (dto: ISaveTime) => Promise<ITimeRepositoryReqDb | null>
+    getTime: (dto: IGetTime) => Promise<ITimeRepositoryReqDb | null>
+    getTimeAll: (dto: GetTimeAllDto) => Promise<ITimeRepositoryReqDb | null>
+    allTimeBySelectedDate:(user_id:number, date:string) => Promise<ITimeRepositoryReqDb | null>
+    getAllUserTime: (user_id:number) => Promise<ITimeRepositoryReqDb | null>
 }
 
 export interface ISaveTime{
@@ -23,7 +23,7 @@ export interface IGetTime{
     enddate:string
 }
 
-export interface IUserRepositoryReqDb{
+export interface ITimeRepositoryReqDb{
     command: string,
     rowCount: number,
     oid: any,
