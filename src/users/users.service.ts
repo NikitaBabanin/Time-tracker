@@ -17,30 +17,29 @@ export class UsersService implements IUserService{
     ) {
     }
 
-    async createUser({email, username, password}:UserRegisterDto): Promise<User | null>{
-        const newUser = new User(username,email, password);
+    async createUser({email, username, password}:UserRegisterDto): Promise<IUserSchema | null>{
+        const newUser = new User(email, username, password);
         const salt = this.configService.get('SALT');
         await newUser.setPassword(password, Number(salt));
-
         const existedUser = await this.usersRepository.find(email);
         if(existedUser?.rowCount){
             return null;
         }
 
-        const newPerson = await this.usersRepository.create(email, username,password);
+        const newPerson = await this.usersRepository.create(newUser);
         return newPerson.rows[0]
     }
 
-
     async validateUser({email, password}:UserLoginDto):Promise<boolean>{
         const existedUser = await this.usersRepository.find(email);
+        console.log('users.service/validateUser [existedUser] : ',existedUser);
         if(!existedUser?.rowCount){
             return false;
         }
+
         const user = existedUser.rows[0];
         const newUser = new User(user.email, user.username, user.password);
-        // return newUser.comparePassword(password);
-        return true
+        return newUser.comparePassword(password);
     }
 
     async getUserInfo(email:string):Promise <IUserSchema | null>{
