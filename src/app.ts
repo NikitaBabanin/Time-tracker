@@ -13,6 +13,7 @@ import {IUserService} from './users/users.service.interface';
 import 'reflect-metadata'
 import { IConfigService } from './config/config.service.interface';
 import {IUsersController} from './users/users.controller.interface'
+import { AuthMiddleware } from './common/auth.middleware';
 
 @injectable()
 export class App {
@@ -34,8 +35,9 @@ export class App {
     }
 
     useMiddleware(): void {
-        this.app.use(urlencoded({ extended: false }))
         this.app.use(json());
+        const authMiddleware = new AuthMiddleware(this.configService.get('SECRET'));
+        this.app.use(authMiddleware.execute.bind(authMiddleware));
     }
 
     useRoutes(): void {

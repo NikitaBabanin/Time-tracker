@@ -4,9 +4,9 @@ import { GetTimeAllDto } from './dto/get-time-all.dto';
 import {GetTimeDto} from "./dto/get-time.dto";
 
 export interface ITimeService {
-    addTime: (dto: AddTimeDto) => Promise<any[] >;
-    getTime: (dto: GetTimeDto) => Promise< {date: any, hours: number, description: any}[]>;
-    getTimeAll: (dto:GetTimeAllDto) => Promise< {username: string, hours: number, description: string}[]>;
+    addTime: (dto: AddTimeDto) => Promise<IAddTime[] | []>;
+    getTime: (dto: GetTimeDto) => Promise< IGetTime[] | null>;
+    getTimeAll: (dto:GetTimeAllDto) => Promise< IGetTimeAll[] | null>;
 }
 
 export interface IOperationWithTime  {
@@ -15,3 +15,22 @@ export interface IOperationWithTime  {
     description:string
 }
 
+export interface IAddTime{
+    id: number,
+    date: string,
+    description: string,
+    hours: number,
+    user_id: number
+}
+
+export interface IGetTime {
+    date:string,
+    hours: number,
+    description:string,
+}
+
+export interface IGetTimeAll {
+    username:string,
+    hours: number,
+    description:string,
+}

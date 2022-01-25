@@ -2,8 +2,7 @@ import {inject, injectable } from "inversify";
 import { UserLoginDto } from "./dto/user-login.dto";
 import { UserRegisterDto } from "./dto/user-register.dto";
 import { User } from "./user.entity";
-import { IUserService } from "./users.service.interface";
-import db from '../db';
+import {IUserSchema, IUserService } from "./users.service.interface";
 import 'reflect-metadata'
 import { TYPES } from "../types";
 import { IConfigService } from "../config/config.service.interface";
@@ -18,16 +17,35 @@ export class UsersService implements IUserService{
     ) {
     }
 
-    async createUser({username, password}:UserRegisterDto): Promise<User | null>{
-        const newUser = new User(username);
+    async createUser({email, username, password}:UserRegisterDto): Promise<User | null>{
+        const newUser = new User(username,email, password);
         const salt = this.configService.get('SALT');
         await newUser.setPassword(password, Number(salt));
 
-        const newPerson = await this.usersRepository.create(username,password);
-        return newPerson
+        const existedUser = await this.usersRepository.find(email);
+        if(existedUser?.rowCount){
+            return null;
+        }
+
+        const newPerson = await this.usersRepository.create(email, username,password);
+        return newPerson.rows[0]
     }
 
-    async validateUser(dto:UserLoginDto):Promise<boolean>{
-        return true;
+
+    async validateUser({email, password}:UserLoginDto):Promise<boolean>{
+        const existedUser = await this.usersRepository.find(email);
+        if(!existedUser?.rowCount){
+            return false;
+        }
+        const user = existedUser.rows[0];
+        const newUser = new User(user.email, user.username, user.password);
+        // return newUser.comparePassword(password);
+        return true
     }
+
+    async getUserInfo(email:string):Promise <IUserSchema | null>{
+        const user =  await this.usersRepository.find(email);
+        return user?.rows[0];
+    }
+
 }
