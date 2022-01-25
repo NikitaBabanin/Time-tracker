@@ -31,7 +31,7 @@ export class App {
 
     ) {
         this.app = express();
-        this.port = 3000;
+        this.port = 3005;
     }
 
     useMiddleware(): void {

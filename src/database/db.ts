@@ -8,4 +8,5 @@ const pool = new Pool({
     database: "time-tracker-prod",
 });
 
+
 export default pool
