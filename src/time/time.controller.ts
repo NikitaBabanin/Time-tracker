@@ -5,7 +5,6 @@ import {LoggerService} from '../logger/logger.service';
 import {ILoggerService} from '../logger/logger.service.interface'
 import {BaseController} from '../common/base.controller';
 import {ITimeController} from './time.controller.interface';
-import db from '../db';
 import 'reflect-metadata'
 import {AddTimeDto} from './dto/add-time.dto';
 import {GetTimeDto} from './dto/get-time.dto';

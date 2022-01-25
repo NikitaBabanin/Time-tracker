@@ -3,7 +3,6 @@ import { UserLoginDto } from "./dto/user-login.dto";
 import { UserRegisterDto } from "./dto/user-register.dto";
 import { User } from "./user.entity";
 import {IUserSchema, IUserService } from "./users.service.interface";
-import db from '../db';
 import 'reflect-metadata'
 import { TYPES } from "../types";
 import { IConfigService } from "../config/config.service.interface";

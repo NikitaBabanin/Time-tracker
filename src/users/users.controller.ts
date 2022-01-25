@@ -5,7 +5,6 @@ import {HTTPError} from '../errors/http-error.class';
 import {ILoggerService} from '../logger/logger.service.interface';
 import {IUsersController} from './users.controller.interface';
 import {TYPES} from '../types';
-import db from '../db';
 import 'reflect-metadata';
 import {UserLoginDto} from './dto/user-login.dto';
 import {UserRegisterDto} from './dto/user-register.dto';

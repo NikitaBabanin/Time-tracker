@@ -1,5 +1,5 @@
 import { injectable } from "inversify";
-import db from "../db";
+import db from "../database/db";
 import { AddTimeDto } from "./dto/add-time.dto";
 import { GetTimeAllDto } from "./dto/get-time-all.dto";
 import { GetTimeDto } from "./dto/get-time.dto";

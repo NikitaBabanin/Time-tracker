@@ -1,5 +1,5 @@
 import { injectable } from "inversify";
-import db from "../db";
+import db from "../database/db";
 import {IUserRepositoryReqDb, IUsersRepository} from "./users.repository.interface";
 import 'reflect-metadata'
 
@@ -7,8 +7,7 @@ import 'reflect-metadata'
 export class UsersRepository implements IUsersRepository {
 
     async create(email: string, username: string, password: string,): Promise<IUserRepositoryReqDb> {
-        let res =  await db.query('INSERT INTO person (email, username, password) values ($1, $2, $3) RETURNING *', [email, username, password])
-        return res
+        return await db.query('INSERT INTO person (email, username, password) values ($1, $2, $3) RETURNING *', [email, username, password])
     }
 
     async find(email:string): Promise<IUserRepositoryReqDb | null> {

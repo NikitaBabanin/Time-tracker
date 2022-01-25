@@ -3,7 +3,6 @@ import {ILoggerService} from "../logger/logger.service.interface";
 import {TYPES} from "../types";
 import {AddTimeDto} from "./dto/add-time.dto";
 import {ITimeService, IOperationWithTime, IGetTime, IGetTimeAll, IAddTime} from "./time.service.interface";
-import db from '../db';
 import {GetTimeDto} from "./dto/get-time.dto";
 import {GetTimeAllDto} from "./dto/get-time-all.dto";
 import 'reflect-metadata'
