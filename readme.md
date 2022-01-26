@@ -9,9 +9,12 @@
 ## Installation
 
 To run an application in a docker container
+You can configure pgAdmin at http://localhost:5050/browser
 ```sh
 docker-compose up --build
 ```
+You can configure pgAdmin at http://localhost:5050/browser
+
 
 Launching an application without a docker container
 ```sh
