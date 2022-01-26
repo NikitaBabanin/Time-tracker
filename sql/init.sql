@@ -1,4 +1,3 @@
-CREATE DATABASE tracker OWNER postgres;
 
 CREATE TABLE person(
 	id SERIAL PRIMARY KEY,
@@ -14,4 +13,4 @@ CREATE TABLE time(
 	hours INTEGER,
 	user_id INTEGER,
 	FOREIGN KEY (user_id) REFERENCES person (id)
-)
+);

@@ -1,17 +1,15 @@
-FROM node:14.18.3-alpine
+FROM node:10.15.0-alpine
+EXPOSE 3000 9229
 
-# тут мы указываем куда положем наш сервис в контейнере
-WORKDIR /usr/src/tracker
+WORKDIR /home/app
 
-# эта гоманда говорит " скопируй package.json и package-lock.json в root дерикторию"
-COPY package*.json ./
+COPY package.json /home/app/
+COPY package-lock.json /home/app/
 
-RUN npm install
+RUN npm ci
 
-# Все файлы которые лажеат в проекте, ъотим скопировать внутрь контейнера
-COPY . .
+COPY . /home/app
 
 RUN npm run build
 
 CMD ./scripts/start.sh
-
