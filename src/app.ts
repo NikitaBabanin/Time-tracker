@@ -14,7 +14,7 @@ import 'reflect-metadata'
 import { IConfigService } from './config/config.service.interface';
 import {IUsersController} from './users/users.controller.interface'
 import { AuthMiddleware } from './common/auth.middleware';
-
+import pool from './database/db';
 @injectable()
 export class App {
     app: Express;
@@ -28,7 +28,7 @@ export class App {
         @inject(TYPES.ExeptionFilter) private exeptionFilter: IExeptionFilter,
         @inject(TYPES.ConfigService) private configService: IConfigService,
         @inject(TYPES.TimeService) private timeService: ITimeService,
-
+        
     ) {
         this.app = express();
         this.port = 3000;
@@ -49,7 +49,15 @@ export class App {
         this.app.use(this.exeptionFilter.catch.bind(this.exeptionFilter))
     }
 
+    private dbConnect(){
+		pool.connect((err:any,client,done) =>{
+			if(err) throw new Error(err);
+			console.log('Connected');
+		});
+	}
+
     public async init(): Promise<void> {
+        this.dbConnect()
         this.useMiddleware();
         this.useRoutes();
         this.useExeptionFilters();

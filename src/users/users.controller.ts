@@ -63,6 +63,7 @@ export class UserController extends BaseController implements IUsersController {
                 this.ok(res, {message: "Register", data: result});
             })
             .catch(error => {
+                console.log(error)
                 next(new HTTPError(422, "This user already exists", "Rregister"))
             })
     }
